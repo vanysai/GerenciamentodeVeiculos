@@ -3,12 +3,11 @@ import axios from 'axios';
 
 function App() {
   const [veiculos, setVeiculos] = useState([]);
-  const [novoVeiculo, setNovoVeiculo] = useState({
-  placa: '',
-  montadora: '',
-  modelo: '',
-  ano: '',
-});
+  const [modeloInput, setModeloInput] = useState('');
+  const [montadoraInput, setMontadoraInput] = useState('');
+  const [placaInput, setPlacaInput] = useState('');
+  const [anoInput, setAnoInput] = useState('');
+
 
 useEffect(() => {
   fetchVeiculos();
@@ -23,29 +22,28 @@ const fetchVeiculos = async () => {
   }
 };
 
-const handleInputChange = (event) => {
-  const { name, value } = event.target;
-  setNovoVeiculo((prevVeiculo) => ({
-    ...prevVeiculo,
-    [name]: value,
-  }));
-};
 
 const handleSubmit = async (event) => {
   event.preventDefault();
   try {
+    let novoVeiculo = {
+      placa: placaInput,
+      montadora: montadoraInput,
+      modelo: modeloInput,
+      ano: anoInput,
+    }
     await axios.post('http://localhost:8090/veiculos', novoVeiculo);
     fetchVeiculos();
-    setNovoVeiculo({
-      placa: '',
-      montadora: '',
-      modelo: '',
-      ano: '',
-    });
+    setPlacaInput('');
+    setMontadoraInput('');
+    setModeloInput('');
+    setAnoInput('');
+
   } catch (error) {
     console.error('Erro ao criar veículo:', error);
   }
-}
+};
+
 
 const handleDelete = async (id) => {
   try {
@@ -66,74 +64,80 @@ const handleUpdate = async (id, veiculoAtualizado) => {
 };
 
 return (
-  <div>
-    {/* Cabeçalho */}
-    <h1>Gerenciamento de Veículos</h1>
+    <div>
+      {/* Cabeçalho */}
+      <h1>Gerenciamento de Veículos</h1>
 
-    {/* Formulário de adição de veículo */}
-    <form onSubmit={handleSubmit}>
-      {/* Campo para a placa */}
-      <input
-        type="text"
-        name="placa"
-        placeholder="Placa"
-        value={novoVeiculo.placa}
-        onChange={handleInputChange}
-      />
-      {/* Campo para a montadora */}
-      <input
-        type="text"
-        name="montadora"
-        placeholder="Montadora"
-        value={novoVeiculo.montadora}
-        onChange={handleInputChange}
-      />
-      {/* Campo para o modelo */}
-      <input
-        type="text"
-        name="modelo"
-        placeholder="Modelo"
-        value={novoVeiculo.modelo}
-        onChange={handleInputChange}
-      />
-      {/* Campo para o ano */}
-      <input
-        type="number"
-        name="ano"
-        placeholder="Ano"
-        value={novoVeiculo.ano}
-        onChange={handleInputChange}
-      />
-      {/* Botão de envio do formulário */}
-      <button type="submit">Adicionar Veículo</button>
-    </form>
+      {/* Formulário de adição de veículo */}
+      <form onSubmit={handleSubmit}>
+        {/* Campo para a placa */}
+        <input
+          type="text"
+          name="placa"
+          placeholder="Placa"
+          value={placaInput}
+          onChange={(event) => setPlacaInput(event.target.value)}
+        />
+        {/* Campo para a montadora */}
+        <input
+          type="text"
+          name="montadora"
+          placeholder="Montadora"
+          value={montadoraInput}
+          onChange={(event) => setMontadoraInput(event.target.value)}
+        />
+        {/* Campo para o modelo */}
+        <input
+          type="text"
+          name="modeloInput"
+          placeholder="Modelo"
+          value={modeloInput}
+          onChange={(event) => setModeloInput(event.target.value)}
+        />
 
-    {/* Lista de veículos */}
-    <ul>
-      {/* Mapeamento dos veículos */}
-      {veiculos.map((veiculo) => (
-        <li key={veiculo.id}>
-          {/* Exibição dos detalhes do veículo */}
-          {veiculo.placa} - {veiculo.montadora} {veiculo.modelo} ({veiculo.ano})
-          
-          {/* Botão de exclusão */}
-          <button onClick={() => handleDelete(veiculo.id)}>Excluir</button>
-          
-          {/* Botão de atualização */}
-          <button
-            onClick={() =>
-              handleUpdate(veiculo.id, {
-                ...veiculo,
-                modelo: 'Novo Modelo Atualizado', // Exemplo de atualização
-              })
-            }
-          >
-            Atualizar
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
+
+        {/* Campo para o ano */}
+        <input
+          type="number"
+          name="ano"
+          placeholder="Ano"
+          value={anoInput}
+          onChange={(event) => setAnoInput(event.target.value)}
+        />
+        {/* Botão de envio do formulário */}
+        <button type="submit">Adicionar Veículo</button>
+      </form>
+
+      {/* Lista de veículos */}
+      <ul>
+        {/* Mapeamento dos veículos */}
+        {veiculos.map((veiculo) => (
+          <li key={veiculo.id}>
+            {/* Exibição dos detalhes do veículo */}
+            {veiculo.placa} - {veiculo.montadora} {veiculo.modelo} ({veiculo.ano})
+
+            {/* Botão de exclusão */}
+            <button onClick={() => handleDelete(veiculo.id)}>Excluir</button>
+
+            {/* Botão de atualização */}
+            <button
+              onClick={() =>
+                handleUpdate(veiculo.id, {
+                  ...veiculo,
+                  modelo: modeloInput !== '' ? modeloInput : veiculo.modelo,
+                  montadora: montadoraInput !== '' ? montadoraInput : veiculo.montadora,
+                  ano: anoInput !== '' ? anoInput : veiculo.ano,
+                  placa: placaInput !== '' ? placaInput : veiculo.placa,
+                })
+              }
+            >
+              Atualizar
+            </button>
+
+          </li>
+        ))}
+      </ul>
+    </div>
 );
 }
 export default App;
